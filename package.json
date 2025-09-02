@@ -1,0 +1,18 @@
+{
+  "name": "speedy-dev-hook",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Mebrahtom Kidane",
+  "license": "MIT",
+  "scripts": {
+    "lint": "biome lint ./server/src",
+    "lint:fix:safe": "biome lint --write ./server/src",
+    "lint:fix:unsafe": "biome lint --write --unsafe ./server/src",
+    "prettier:check": "prettier --check .",
+    "prettier:format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "prettier": "^3.5.3"
+  }
+}
