@@ -1,0 +1,12 @@
+{
+  "name": "speedy-dev-hook",
+  "version": "1.0.0",
+  "sublime_text": "*",
+  "platforms": ["*"],
+  "python_version": "3.8",
+  "url": "https://github.com/mebrahtomkg/speedy-dev-hook",
+  "issues": "https://github.com/mebrahtomkg/speedy-dev-hook/issues",
+  "author": ["Mebrahtom Kidane"],
+  "description": "Fast dev tools Plugin for Sublime Text",
+  "labels": ["format"]
+}
