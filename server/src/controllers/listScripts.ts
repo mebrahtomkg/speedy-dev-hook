@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { Dirent } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -70,7 +69,29 @@ const listScripts = async (req: Request, res: Response, next: NextFunction) => {
 
     const packageJsonFiles = await getPackageJsonFiles(folderpath);
 
-    res.status(200).json({ folderpath, packageJsonFiles });
+    const scripts: string[] = [];
+
+    for (const pkgFile of packageJsonFiles) {
+      const pkgFileContent = await fs.readFile(pkgFile.absPath, {
+        encoding: 'utf8',
+      });
+
+      const pkgObject = JSON.parse(pkgFileContent);
+
+      for (const key of Object.keys(pkgObject.scripts)) {
+        const relativePath = pkgFile.parentPath.substring(folderpath.length);
+        scripts.push(`${relativePath}/${key}`);
+      }
+    }
+
+    const refinedScripts = scripts.map((script) => {
+      if (script[0] === '/') {
+        return script.substring(1);
+      }
+      return script;
+    });
+
+    res.status(200).json(refinedScripts);
   } catch (err) {
     next(err);
   }
