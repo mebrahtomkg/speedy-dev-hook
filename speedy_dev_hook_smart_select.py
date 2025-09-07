@@ -31,16 +31,16 @@ class SpeedyDevHookSmartSelectCommand(sublime_plugin.TextCommand):
                 f"[speedy-dev-hook] Smart select info fetched.({end_time-start_time}ms)"
             )
 
-            selected_node = result.get("selectedNode")
+            selection = result.get("selection")
 
-            if not selected_node:
-                raise Exception("Invalid or null selected node!")
+            if not selection:
+                raise Exception("Invalid or null selection!")
 
-            if not isinstance(selected_node, dict):
-                raise Exception("Invalid selected node format!")
+            if not isinstance(selection, dict):
+                raise Exception("Invalid selection format!")
 
-            start = selected_node.get("start")
-            end = selected_node.get("end")
+            start = selection.get("start")
+            end = selection.get("end")
 
             if not isinstance(start, int):
                 raise Exception("Invalid selection start type!")
