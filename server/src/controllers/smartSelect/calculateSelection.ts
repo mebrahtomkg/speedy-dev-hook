@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { ISelection } from './types';
 import getNodes from './getNodes';
 import doStringSelection from './doStringSelection';
+import findDeepestNode from './findDeepestNode';
 
 const calculateSelection = (
   sourceText: string,
@@ -17,7 +18,7 @@ const calculateSelection = (
 
   const nodes = getNodes(sourceFile);
 
-  let targetNode: ts.Node | null = null;
+  let targetNode: ts.Node | undefined;
 
   // Incase selected node exists
   if (prevSel.start >= 0 && prevSel.end >= 0) {
@@ -31,13 +32,14 @@ const calculateSelection = (
   }
 
   if (!targetNode) {
-    for (const node of nodes) {
-      const nodeStart = node.getStart(sourceFile);
-      const nodeEnd = node.end;
-      if (cursorPosition >= nodeStart && cursorPosition < nodeEnd) {
-        targetNode = node;
-      }
-    }
+    // for (const node of nodes) {
+    //   const nodeStart = node.getStart(sourceFile);
+    //   const nodeEnd = node.end;
+    //   if (cursorPosition >= nodeStart && cursorPosition < nodeEnd) {
+    //     targetNode = node;
+    //   }
+    // }
+    targetNode = findDeepestNode(sourceFile, cursorPosition);
   }
 
   const node = targetNode;
