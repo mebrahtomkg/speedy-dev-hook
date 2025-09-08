@@ -11,12 +11,26 @@ class SpeedyDevHookSmartSelectCommand(sublime_plugin.TextCommand):
         sourceText = self.view.substr(region)
 
         # Get the current cursor position (or start of the first selection)
-        # If there's no selection, sel()[0].begin() gives the cursor position.
-        cursorPosition = self.view.sel()[0].begin()
+        # Sublime Text always has at least one region in view.sel(),
+        # even if it's an empty region representing the cursor.
+        current_selection_region = self.view.sel()[0]
+
+        # This is the start of the first region. [2, 6]
+        cursorPosition = current_selection_region.begin()
+
+        selection_start = -1
+        selection_end = -1
+
+        # Check if there is an actual selection (not just an empty cursor region). [6]
+        if not current_selection_region.empty():
+            selection_start = current_selection_region.begin()
+            selection_end = current_selection_region.end()
 
         data = {
             "cursorPosition": cursorPosition,
             "sourceText": sourceText,
+            "selectionStart": selection_start,
+            "selectionEnd": selection_end,
         }
 
         try:

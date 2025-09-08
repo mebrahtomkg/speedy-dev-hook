@@ -3,8 +3,8 @@ import calculateSelection from './calculateSelection';
 
 const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const sourceText = req.body?.sourceText;
-    const cursorPosition = req.body.cursorPosition;
+    const { sourceText, cursorPosition, selectionStart, selectionEnd } =
+      req.body;
 
     if (typeof sourceText !== 'string') {
       return res.status(400).send('Invalid source text!');
@@ -18,7 +18,28 @@ const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send('Invalid cursor position!');
     }
 
-    const selection = calculateSelection(sourceText, cursorPosition);
+    if (
+      typeof selectionStart !== 'number' ||
+      selectionStart < -1 ||
+      selectionStart > sourceText.length
+    ) {
+      return res.status(400).send('Invalid selection start!');
+    }
+
+    if (
+      typeof selectionEnd !== 'number' ||
+      selectionEnd < -1 ||
+      selectionEnd > sourceText.length
+    ) {
+      return res.status(400).send('Invalid selection end!');
+    }
+
+    const selection = calculateSelection(
+      sourceText,
+      cursorPosition,
+      selectionStart,
+      selectionEnd,
+    );
 
     res.status(200).json({
       sourceText,
