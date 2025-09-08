@@ -34,12 +34,10 @@ const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send('Invalid selection end!');
     }
 
-    const selection = calculateSelection(
-      sourceText,
-      cursorPosition,
-      selectionStart,
-      selectionEnd,
-    );
+    const selection = calculateSelection(sourceText, cursorPosition, {
+      start: selectionStart,
+      end: selectionEnd,
+    });
 
     res.status(200).json({
       sourceText,

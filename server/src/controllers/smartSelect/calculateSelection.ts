@@ -1,12 +1,12 @@
 import ts from 'typescript';
 import { ISelection } from './types';
 import getNodes from './getNodes';
+import doStringSelection from './doStringSelection';
 
 const calculateSelection = (
   sourceText: string,
   cursorPosition: number,
-  selectionStart: number,
-  selectionEnd: number,
+  prevSel: ISelection,
 ): ISelection => {
   const sourceFile = ts.createSourceFile(
     'test.ts',
@@ -20,11 +20,11 @@ const calculateSelection = (
   let targetNode: ts.Node | null = null;
 
   // Incase selected node exists
-  if (selectionStart >= 0 && selectionEnd >= 0) {
+  if (prevSel.start >= 0 && prevSel.end >= 0) {
     for (const node of nodes) {
       const nodeStart = node.getStart(sourceFile);
       const nodeEnd = node.end;
-      if (nodeStart === selectionStart && nodeEnd === selectionEnd) {
+      if (nodeStart === prevSel.start && nodeEnd === prevSel.end) {
         targetNode = node.parent;
       }
     }
@@ -54,17 +54,12 @@ const calculateSelection = (
   start = node.getStart(sourceFile);
   end = node.end;
 
-  const wasSelection = selectionStart > -1 && selectionEnd > -1;
+  const wasSelection = prevSel.start > -1 && prevSel.end > -1;
 
   switch (node.kind) {
     case ts.SyntaxKind.StringLiteral:
       if (ts.isStringLiteral(node)) {
-        console.log("'getText/bom'", node.getText());
-        if (!wasSelection) {
-          // exceculude the 's and "s
-          start++;
-          end--;
-        }
+        ({ start, end } = doStringSelection(node, cursorPosition, prevSel));
       }
       break;
 
