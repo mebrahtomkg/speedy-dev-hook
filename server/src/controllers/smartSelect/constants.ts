@@ -32,8 +32,6 @@ export const WORD_SEPARATORS = new Set([
   '$',
 ]);
 
-export const TOKEN_SEPARATORS = new Set([' ', '\\n']);
-
 export const TOKENS = new Set([
   '!',
   '`',
