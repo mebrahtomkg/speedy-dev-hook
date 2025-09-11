@@ -4,7 +4,7 @@ import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
 import calcStringSelection from './calcStringSelection';
 
-const calculateSelection = (
+const calcSelection = (
   sourceText: string,
   cursorPosition: number,
   prevSel: ISelection,
@@ -58,4 +58,4 @@ const calculateSelection = (
   return { start, end };
 };
 
-export default calculateSelection;
+export default calcSelection;

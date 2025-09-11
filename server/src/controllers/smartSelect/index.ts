@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import calculateSelection from './calculateSelection';
+import calcSelection from './calcSelection';
 
 const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -34,7 +34,7 @@ const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send('Invalid selection end!');
     }
 
-    const selection = calculateSelection(sourceText, cursorPosition, {
+    const selection = calcSelection(sourceText, cursorPosition, {
       start: selectionStart,
       end: selectionEnd,
     });
