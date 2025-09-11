@@ -50,7 +50,7 @@ const calcSelection = (
   switch (node.kind) {
     case ts.SyntaxKind.StringLiteral:
       if (ts.isStringLiteral(node)) {
-        ({ start, end } = calcStringSelection(node, cursorPosition, prevSel));
+        ({ start, end } = calcStringSelection(node, prevSel));
       }
       break;
   }
