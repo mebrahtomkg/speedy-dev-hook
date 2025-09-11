@@ -2,7 +2,7 @@ import ts from 'typescript';
 import { ISelection } from './types';
 import { WORD_SEPARATORS } from './constants';
 
-const doStringSelection = (
+const calcStringSelection = (
   node: ts.StringLiteral,
   cursorPosition: number,
   prevSel: ISelection,
@@ -56,4 +56,4 @@ const doStringSelection = (
   return { start, end };
 };
 
-export default doStringSelection;
+export default calcStringSelection;

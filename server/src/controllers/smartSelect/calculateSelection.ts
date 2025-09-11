@@ -1,8 +1,8 @@
 import ts from 'typescript';
 import { ISelection } from './types';
-import doStringSelection from './doStringSelection';
 import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
+import calcStringSelection from './calcStringSelection';
 
 const calculateSelection = (
   sourceText: string,
@@ -50,7 +50,7 @@ const calculateSelection = (
   switch (node.kind) {
     case ts.SyntaxKind.StringLiteral:
       if (ts.isStringLiteral(node)) {
-        ({ start, end } = doStringSelection(node, cursorPosition, prevSel));
+        ({ start, end } = calcStringSelection(node, cursorPosition, prevSel));
       }
       break;
   }
