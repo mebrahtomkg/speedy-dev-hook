@@ -1,14 +1,19 @@
 import ts from 'typescript';
 import { ISelection } from './types';
-import getNodes from './getNodes';
 import doStringSelection from './doStringSelection';
-import findDeepestNode from './findDeepestNode';
+import findTargetNode from './findTargetNode';
+import calcTokenSelection from './calcTokenSelection';
 
 const calculateSelection = (
   sourceText: string,
   cursorPosition: number,
   prevSel: ISelection,
 ): ISelection => {
+  // If there was no selection before use token selection, without needing typescript AST.
+  if (prevSel.start < 0 || prevSel.end < 0) {
+    return calcTokenSelection(sourceText, cursorPosition);
+  }
+
   const sourceFile = ts.createSourceFile(
     'test.ts',
     sourceText,
@@ -16,59 +21,36 @@ const calculateSelection = (
     true,
   );
 
-  const nodes = getNodes(sourceFile);
-
-  let targetNode: ts.Node | undefined;
-
-  // Incase selected node exists
-  if (prevSel.start >= 0 && prevSel.end >= 0) {
-    for (const node of nodes) {
-      const nodeStart = node.getStart(sourceFile);
-      const nodeEnd = node.end;
-      if (nodeStart === prevSel.start && nodeEnd === prevSel.end) {
-        targetNode = node.parent;
-      }
-    }
-  }
-
-  if (!targetNode) {
-    // for (const node of nodes) {
-    //   const nodeStart = node.getStart(sourceFile);
-    //   const nodeEnd = node.end;
-    //   if (cursorPosition >= nodeStart && cursorPosition < nodeEnd) {
-    //     targetNode = node;
-    //   }
-    // }
-    targetNode = findDeepestNode(sourceFile, cursorPosition);
-  }
-
-  const node = targetNode;
-
+  // Default selection is selecting the whole document
   let start = sourceFile.pos;
   let end = sourceFile.end;
 
+  let node = findTargetNode(sourceFile, cursorPosition, prevSel);
+
   if (!node) return { start, end };
 
-  console.log('node', {
+  start = node.getStart();
+  end = node.end;
+
+  console.log('Target node', {
     kind: ts.SyntaxKind[node.kind],
   });
 
-  start = node.getStart(sourceFile);
-  end = node.end;
+  // If the node was fully selected and if it has a parent, select its parent node.
+  if (prevSel.start === start && prevSel.end === end && node.parent) {
+    node = node.parent;
+    start = node.getStart();
+    end = node.end;
+  }
 
-  const wasSelection = prevSel.start > -1 && prevSel.end > -1;
+  console.log('Selected node', {
+    kind: ts.SyntaxKind[node.kind],
+  });
 
   switch (node.kind) {
     case ts.SyntaxKind.StringLiteral:
       if (ts.isStringLiteral(node)) {
         ({ start, end } = doStringSelection(node, cursorPosition, prevSel));
-      }
-      break;
-
-    case ts.SyntaxKind.PrefixUnaryExpression:
-      if (!wasSelection) {
-        // only select the symbol eg. '!'
-        end = start + 1;
       }
       break;
   }
