@@ -1,4 +1,5 @@
 /node_modules/
 /server/apiTests/
+/server/dist/
 /server/node_modules/
 /tests/
