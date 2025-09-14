@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 export const PORT = 3000;
@@ -17,7 +17,7 @@ interface AppConfig {
 let config: AppConfig;
 
 try {
-  const data = await readFile(CONFIG_FILE_PATH, 'utf8');
+  const data = readFileSync(CONFIG_FILE_PATH, 'utf8');
 
   config = JSON.parse(data);
 } catch (error) {
