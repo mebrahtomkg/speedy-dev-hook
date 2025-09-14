@@ -7,9 +7,9 @@
     "node": ">=22.16.0"
   },
   "scripts": {
-    "dev": "NODE_ENV=development tsx watch ./src/server.ts",
-    "build": "swc src -d dist --strip-leading-paths",
-    "start": "node ./dist/server.js",
+    "dev": "NODE_ENV=development node scripts/dev/index.js",
+    "build": "NODE_ENV=production rspack build",
+    "start": "NODE_ENV=production node dist/server.cjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -19,12 +19,12 @@
     "typescript": "^5.9.2"
   },
   "devDependencies": {
-    "@swc/cli": "^0.7.7",
-    "@swc/core": "^1.11.29",
+    "@rspack/cli": "^1.5.3",
+    "@rspack/core": "^1.5.3",
     "@types/body-parser": "^1.19.6",
-    "@types/express": "^5.0.2",
-    "@types/node": "^22.15.29",
-    "tsx": "^4.20.3",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.1",
+    "dotenv": "^17.2.2",
     "typescript": "^5.9.2"
   }
 }
