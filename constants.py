@@ -1,5 +1,7 @@
 import socket
 
+IS_PRODUCTION = False
+
 
 def find_free_port():
     """
@@ -12,4 +14,9 @@ def find_free_port():
     return port
 
 
-PORT = find_free_port()
+PORT = None
+
+if IS_PRODUCTION:
+    PORT = find_free_port()
+else:
+    PORT = 3000

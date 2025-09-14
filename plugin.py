@@ -118,4 +118,6 @@ def start_service():
 
 
 def plugin_loaded():
-    start_service()
+    if constants.IS_PRODUCTION:
+        start_service()
+    # In dev mode the developer is responsible to start the server via `npm run dev` command.
