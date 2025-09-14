@@ -1,10 +1,10 @@
 import http.client
 import json
 from typing import Union, Dict, Any
+from . import constants
 
 BASE_HOST = "localhost"
-BASE_PORT = 3000
-BASE_URL_PREFIX = f"http://{BASE_HOST}:{BASE_PORT}"
+BASE_URL_PREFIX = f"http://{BASE_HOST}:{constants.PORT}"
 
 
 def call_api(
@@ -35,7 +35,7 @@ def call_api(
     full_path = endpoint  # Endpoint already includes the leading slash, e.g., '/format'
 
     try:
-        conn = http.client.HTTPConnection(BASE_HOST, BASE_PORT)
+        conn = http.client.HTTPConnection(BASE_HOST, constants.PORT)
 
         headers = {
             "Accept": "application/json, text/plain, */*"  # Indicate preference for JSON
