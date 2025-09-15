@@ -9,7 +9,7 @@ export default class ServerManager {
   serverPid = undefined;
 
   async start() {
-    const child = spawn('node', [SERVER_FILE_PATH], {
+    const child = spawn('node', [SERVER_FILE_PATH, '--port', '3000'], {
       stdio: 'inherit',
       env: process.env,
     });
