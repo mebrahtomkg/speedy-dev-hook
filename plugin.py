@@ -12,7 +12,7 @@ import time
 
 from typing import Union, Dict, Any
 
-IS_PRODUCTION = True
+IS_PRODUCTION = False
 
 SERVER_FILE_PATH = os.path.join(
     os.path.dirname(__file__), "server", "dist", "server.cjs"
@@ -353,8 +353,28 @@ class SpeedyDevHookSmartSelectCommand(sublime_plugin.TextCommand):
 
 
 ################################################################################################
+def ping_server_periodically():
+    """
+    Continuously pings the server's '/ping' endpoint every 15 seconds.
+    This function is intended to be run in a separate daemon thread.
+    """
+    while True:
+        try:
+            call_api("/ping")
+        except Exception as e:
+            # Log the error but don't stop the loop, as the server might
+            # temporarily be down or unresponsive.
+            print(f"[SpeedyDevHook] Ping failed: {e}")
+        time.sleep(15)  # Wait for 15 seconds before the next ping
+
+
+################################################################################################
 def plugin_loaded():
-    if IS_PRODUCTION:
-        start_server()
     # In dev mode the developer is responsible to start the server via
     # `npm run dev` command in the server dir.
+    if IS_PRODUCTION:
+        start_server()
+
+    # Start the ping loop in a separate daemon thread
+    ping_thread = threading.Thread(target=ping_server_periodically, daemon=True)
+    ping_thread.start()

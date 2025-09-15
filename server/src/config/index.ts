@@ -3,6 +3,9 @@ import path from 'node:path';
 
 export const PORT = 3000;
 
+// The amount time(in ms) the server is allowed to run without receiving any request
+export const MAX_INACTIVE_TIME = 30000;
+
 export const MAX_TXT_SIZE = 1 * 1024 * 1024; // 1MB
 
 const CONFIG_FILE_PATH = path.join(
