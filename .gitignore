@@ -3,3 +3,4 @@
 /server/dist/
 /server/node_modules/
 /tests/
+/speedy-dev-hook.sublime-project
