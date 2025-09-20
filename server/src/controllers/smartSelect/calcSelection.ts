@@ -11,7 +11,28 @@ const calcSelection = (
 ): ISelection => {
   // If there was no selection before use token selection, without needing typescript AST.
   if (prevSel.start < 0 || prevSel.end < 0) {
-    return calcTokenSelection(sourceText, cursorPosition);
+    const normalSel = calcTokenSelection(sourceText, cursorPosition);
+
+    const leftPosition = cursorPosition - 1;
+
+    if (leftPosition >= 0 && sourceText[leftPosition] !== ' ') {
+      // Token selection that would be calculated if the cursor postion was one minus
+      const leftSel = calcTokenSelection(sourceText, leftPosition);
+
+      // If normally calculated selection is not a word selection, and if the left selection
+      // is a word selection: prefer the word section that is to the left of the cursor.
+      if (!normalSel.isWordSelection && leftSel.isWordSelection) {
+        return {
+          start: leftSel.start,
+          end: leftSel.end,
+        };
+      }
+    }
+
+    return {
+      start: normalSel.start,
+      end: normalSel.end,
+    };
   }
 
   const sourceFile = ts.createSourceFile(
