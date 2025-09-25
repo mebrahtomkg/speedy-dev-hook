@@ -19,8 +19,6 @@ const serverLifeManager = (req: Request, res: Response, next: NextFunction) => {
     if (timeout) clearTimeout(timeout);
     scheduleServerShutdown();
 
-    console.log('-------Server is bing used. server life time extended');
-
     next();
   } catch (err) {
     next(err);

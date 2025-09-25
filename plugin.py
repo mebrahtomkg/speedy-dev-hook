@@ -12,7 +12,7 @@ import time
 
 from typing import Union, Dict, Any
 
-IS_PRODUCTION = False
+IS_PRODUCTION = True
 
 SERVER_FILE_PATH = os.path.join(
     os.path.dirname(__file__), "server", "dist", "server.cjs"

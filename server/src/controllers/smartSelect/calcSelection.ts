@@ -14,8 +14,6 @@ const calcSelection = (
 ): ISelection => {
   const fileName = path.basename(filepath);
 
-  console.log('fileName', fileName);
-
   // If there was no selection before use token selection, without needing typescript AST.
   if (prevSel.start < 0 || prevSel.end < 0) {
     const normalSel = calcTokenSelection(sourceText, cursorPosition);
