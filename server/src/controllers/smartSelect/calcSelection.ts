@@ -4,12 +4,18 @@ import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
 import calcStringSelection from './calcStringSelection';
 import calcTemplateStringSelection from './calcTemplateStringSelection';
+import path from 'node:path';
 
 const calcSelection = (
+  filepath: string,
   sourceText: string,
   cursorPosition: number,
   prevSel: ISelection,
 ): ISelection => {
+  const fileName = path.basename(filepath);
+
+  console.log('fileName', fileName);
+
   // If there was no selection before use token selection, without needing typescript AST.
   if (prevSel.start < 0 || prevSel.end < 0) {
     const normalSel = calcTokenSelection(sourceText, cursorPosition);
@@ -37,7 +43,7 @@ const calcSelection = (
   }
 
   const sourceFile = ts.createSourceFile(
-    'test.ts',
+    fileName,
     sourceText,
     ts.ScriptTarget.Latest,
     true,

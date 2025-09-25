@@ -3,8 +3,17 @@ import calcSelection from './calcSelection';
 
 const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { sourceText, cursorPosition, selectionStart, selectionEnd } =
-      req.body;
+    const {
+      filepath,
+      sourceText,
+      cursorPosition,
+      selectionStart,
+      selectionEnd,
+    } = req.body;
+
+    if (typeof filepath !== 'string') {
+      return res.status(400).send('Invalid filepath!');
+    }
 
     if (typeof sourceText !== 'string') {
       return res.status(400).send('Invalid source text!');
@@ -34,7 +43,7 @@ const smartSelect = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).send('Invalid selection end!');
     }
 
-    const selection = calcSelection(sourceText, cursorPosition, {
+    const selection = calcSelection(filepath, sourceText, cursorPosition, {
       start: selectionStart,
       end: selectionEnd,
     });

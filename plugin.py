@@ -12,7 +12,7 @@ import time
 
 from typing import Union, Dict, Any
 
-IS_PRODUCTION = True
+IS_PRODUCTION = False
 
 SERVER_FILE_PATH = os.path.join(
     os.path.dirname(__file__), "server", "dist", "server.cjs"
@@ -286,6 +286,9 @@ class SpeedyDevHookListScriptsCommand(sublime_plugin.WindowCommand):
 ################################################################################################
 class SpeedyDevHookSmartSelectCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        # Get file name(full path) as it is important for syntax detection
+        filepath = self.view.file_name()
+
         # Get the entire source text from the current view
         region = sublime.Region(0, self.view.size())
         sourceText = self.view.substr(region)
@@ -307,6 +310,7 @@ class SpeedyDevHookSmartSelectCommand(sublime_plugin.TextCommand):
             selection_end = current_selection_region.end()
 
         data = {
+            "filepath": filepath,
             "cursorPosition": cursorPosition,
             "sourceText": sourceText,
             "selectionStart": selection_start,
