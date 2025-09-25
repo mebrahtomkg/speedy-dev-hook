@@ -1,5 +1,9 @@
 export const WORD_SEPARATORS = new Set([
   ' ',
+  '\n',
+  '\t',
+  '\t\n',
+  '\n\t',
   '/',
   "'",
   '"',
@@ -79,4 +83,5 @@ export const TOKENS = new Set([
   '|',
   '||',
   '\\',
+  '<>',
 ]);

@@ -27,8 +27,6 @@ const calcTokenSelection = (
     end++;
   }
 
-  console.log("'import/test'", './models/user', 't, ids example txt');
-
   if (end - start > 0) return { start, end, isWordSelection: false };
 
   while (start > 0) {

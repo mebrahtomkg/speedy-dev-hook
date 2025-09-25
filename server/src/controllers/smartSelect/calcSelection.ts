@@ -3,6 +3,7 @@ import { ISelection } from './types';
 import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
 import calcStringSelection from './calcStringSelection';
+import calcTemplateStringSelection from './calcTemplateStringSelection';
 
 const calcSelection = (
   sourceText: string,
@@ -73,6 +74,10 @@ const calcSelection = (
       if (ts.isStringLiteral(node)) {
         ({ start, end } = calcStringSelection(node, prevSel));
       }
+      break;
+
+    case ts.SyntaxKind.FirstTemplateToken:
+      ({ start, end } = calcTemplateStringSelection(node, prevSel));
       break;
   }
 
