@@ -5,6 +5,7 @@ import calcTokenSelection from './calcTokenSelection';
 import calcStringSelection from './calcStringSelection';
 import calcTemplateStringSelection from './calcTemplateStringSelection';
 import path from 'node:path';
+import calcListSelection from './calcListSelection';
 
 const calcSelection = (
   filepath: string,
@@ -12,8 +13,6 @@ const calcSelection = (
   cursorPosition: number,
   prevSel: ISelection,
 ): ISelection => {
-  const fileName = path.basename(filepath);
-
   // If there was no selection before use token selection, without needing typescript AST.
   if (prevSel.start < 0 || prevSel.end < 0) {
     const normalSel = calcTokenSelection(sourceText, cursorPosition);
@@ -40,6 +39,8 @@ const calcSelection = (
     };
   }
 
+  const fileName = path.basename(filepath);
+
   const sourceFile = ts.createSourceFile(
     fileName,
     sourceText,
@@ -47,45 +48,66 @@ const calcSelection = (
     true,
   );
 
+  const nodeFinderSel = { ...prevSel };
+
+  // If last char on the prev selection was comma (','), exclude the comma selection. as this
+  // comma was probably selected by the list selection function. by exculiding this comma
+  // when we use the selection to find target node, we make target node finder's job easy and
+  // predictable as it works based on Typescript AST.
+  if (sourceText[prevSel.end - 1] === ',') {
+    nodeFinderSel.end = prevSel.end - 1;
+  }
+
+  const node = findTargetNode(sourceFile, cursorPosition, nodeFinderSel);
+
   // Default selection is selecting the whole document
-  let start = sourceFile.pos;
-  let end = sourceFile.end;
-
-  let node = findTargetNode(sourceFile, cursorPosition, prevSel);
-
-  if (!node) return { start, end };
-
-  start = node.getStart();
-  end = node.end;
-
-  console.log('Target node', {
-    kind: ts.SyntaxKind[node.kind],
-  });
-
-  // If the node was fully selected and if it has a parent, select its parent node.
-  if (prevSel.start === start && prevSel.end === end && node.parent) {
-    node = node.parent;
-    start = node.getStart();
-    end = node.end;
+  if (!node) {
+    return {
+      start: sourceFile.pos,
+      end: sourceFile.end,
+    };
   }
 
-  console.log('Selected node', {
-    kind: ts.SyntaxKind[node.kind],
-  });
+  console.log('');
+  console.log('Target node', ts.SyntaxKind[node.kind]);
+  console.log('Parent node', ts.SyntaxKind[node.parent.kind]);
 
-  switch (node.kind) {
-    case ts.SyntaxKind.StringLiteral:
-      if (ts.isStringLiteral(node)) {
-        ({ start, end } = calcStringSelection(node, prevSel));
-      }
-      break;
+  const nodeStart = node.getStart();
+  const nodeEnd = node.end;
 
-    case ts.SyntaxKind.FirstTemplateToken:
-      ({ start, end } = calcTemplateStringSelection(node, prevSel));
-      break;
+  const isNodeFullySelected =
+    prevSel.start <= nodeStart && prevSel.end >= nodeEnd;
+
+  // If the node was not fully selected, do appropriate selection on the node.
+  if (!isNodeFullySelected) {
+    switch (node.kind) {
+      case ts.SyntaxKind.StringLiteral:
+        return calcStringSelection(node, prevSel);
+
+      case ts.SyntaxKind.FirstTemplateToken:
+        return calcTemplateStringSelection(node, prevSel);
+    }
+
+    // Default is selecting the whole node content
+    return {
+      start: nodeStart,
+      end: nodeEnd,
+    };
   }
 
-  return { start, end };
+  const parent = node.parent;
+
+  switch (parent.kind) {
+    case ts.SyntaxKind.ArrayLiteralExpression:
+    case ts.SyntaxKind.ArrayBindingPattern:
+    case ts.SyntaxKind.ObjectLiteralExpression:
+      return calcListSelection(parent, prevSel);
+  }
+
+  return {
+    start: parent.getStart(),
+    end: parent.end,
+  };
 };
 
 export default calcSelection;

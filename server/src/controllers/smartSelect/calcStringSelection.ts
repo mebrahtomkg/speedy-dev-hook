@@ -2,7 +2,7 @@ import ts from 'typescript';
 import { ISelection } from './types';
 
 const calcStringSelection = (
-  node: ts.StringLiteral,
+  node: ts.Node,
   prevSel: ISelection,
 ): ISelection => {
   const nodeStart = node.getStart();
