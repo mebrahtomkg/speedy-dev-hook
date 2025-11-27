@@ -4,6 +4,7 @@ import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
 import path from 'node:path';
 import calcNodeSelection from './calcNodeSelection';
+import calcWordSelection from './calcWordSelection';
 
 const calcSelection = (
   filepath: string,
@@ -11,30 +12,24 @@ const calcSelection = (
   cursorPosition: number,
   prevSel: ISelection,
 ): ISelection => {
-  // If there was no selection before use token selection, without needing typescript AST.
+  // Default selection is selecting the whole document
+  const defaultSel = {
+    start: 0,
+    end: sourceText.length,
+  };
+
+  // If there was no selection before, use token selection without needing typescript AST.
   if (prevSel.start < 0 || prevSel.end < 0) {
-    const normalSel = calcTokenSelection(sourceText, cursorPosition);
+    const tokenSel = calcTokenSelection(sourceText, cursorPosition);
+    const wordSel = calcWordSelection(sourceText, cursorPosition);
 
-    const leftPosition = cursorPosition - 1;
-
-    if (leftPosition >= 0 && sourceText[leftPosition] !== ' ') {
-      // Token selection that would be calculated if the cursor postion was one minus
-      const leftSel = calcTokenSelection(sourceText, leftPosition);
-
-      // If normally calculated selection is not a word selection, and if the left selection
-      // is a word selection: prefer the word section that is to the left of the cursor.
-      if (!normalSel.isWordSelection && leftSel.isWordSelection) {
-        return {
-          start: leftSel.start,
-          end: leftSel.end,
-        };
-      }
+    // If all content of the word selection is exactly to the left of the cursor, prefer
+    // the word section instead of the token selection.
+    if (wordSel && wordSel.end === cursorPosition) {
+      return wordSel;
     }
 
-    return {
-      start: normalSel.start,
-      end: normalSel.end,
-    };
+    return tokenSel || wordSel || defaultSel;
   }
 
   const fileName = path.basename(filepath);
@@ -58,13 +53,7 @@ const calcSelection = (
 
   const node = findTargetNode(sourceFile, cursorPosition, nodeFinderSel);
 
-  // Default selection is selecting the whole document
-  if (!node) {
-    return {
-      start: sourceFile.pos,
-      end: sourceFile.end,
-    };
-  }
+  if (!node) return defaultSel;
 
   console.log('');
   console.log('Target node', ts.SyntaxKind[node.kind]);
@@ -78,7 +67,7 @@ const calcSelection = (
 
   // If the node was fully selected, do selection on its parent, otherwise do selection
   // on the node it self.
-  if (isNodeFullySelected) {
+  if (isNodeFullySelected && node.parent) {
     return calcNodeSelection(node.parent, prevSel);
   }
 

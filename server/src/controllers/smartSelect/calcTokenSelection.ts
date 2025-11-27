@@ -1,14 +1,10 @@
+import { TOKENS } from './constants';
 import { ISelection } from './types';
-import { TOKENS, WORD_SEPARATORS } from './constants';
-
-interface TokenSelection extends ISelection {
-  isWordSelection: boolean;
-}
 
 const calcTokenSelection = (
   text: string,
   cursorPosition: number,
-): TokenSelection => {
+): ISelection | null => {
   let start = cursorPosition;
   let end = cursorPosition;
   let token = '';
@@ -27,19 +23,11 @@ const calcTokenSelection = (
     end++;
   }
 
-  if (end - start > 0) return { start, end, isWordSelection: false };
-
-  while (start > 0) {
-    if (WORD_SEPARATORS.has(text[start - 1])) break;
-    start--;
+  if (end - start <= 0) {
+    return null;
   }
 
-  while (end < text.length) {
-    if (WORD_SEPARATORS.has(text[end])) break;
-    end++;
-  }
-
-  return { start, end, isWordSelection: true };
+  return { start, end };
 };
 
 export default calcTokenSelection;
