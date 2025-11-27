@@ -5,6 +5,7 @@ import calcTokenSelection from './calcTokenSelection';
 import path from 'node:path';
 import calcNodeSelection from './calcNodeSelection';
 import calcWordSelection from './calcWordSelection';
+import calcCommentSelection from './calcCommentSelection';
 
 const calcSelection = (
   filepath: string,
@@ -30,6 +31,16 @@ const calcSelection = (
     }
 
     return tokenSel || wordSel || defaultSel;
+  }
+
+  // If the cursor is inside single line comment and the prev selection is not exactly
+  // with the currently calculated comment selection return the comment selection
+  const commentSel = calcCommentSelection(sourceText, cursorPosition);
+  if (
+    commentSel &&
+    !(prevSel.start === commentSel.start && prevSel.end === commentSel.end)
+  ) {
+    return commentSel;
   }
 
   const fileName = path.basename(filepath);
