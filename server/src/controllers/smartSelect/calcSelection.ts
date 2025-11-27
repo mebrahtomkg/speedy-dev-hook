@@ -2,10 +2,8 @@ import ts from 'typescript';
 import { ISelection } from './types';
 import findTargetNode from './findTargetNode';
 import calcTokenSelection from './calcTokenSelection';
-import calcStringSelection from './calcStringSelection';
-import calcTemplateStringSelection from './calcTemplateStringSelection';
 import path from 'node:path';
-import calcListSelection from './calcListSelection';
+import calcNodeSelection from './calcNodeSelection';
 
 const calcSelection = (
   filepath: string,
@@ -54,7 +52,7 @@ const calcSelection = (
   // comma was probably selected by the list selection function. by exculiding this comma
   // when we use the selection to find target node, we make target node finder's job easy and
   // predictable as it works based on Typescript AST.
-  if (sourceText[prevSel.end - 1] === ',') {
+  if (sourceText[prevSel.end - 1] === ',' && prevSel.end - prevSel.start > 1) {
     nodeFinderSel.end = prevSel.end - 1;
   }
 
@@ -78,36 +76,13 @@ const calcSelection = (
   const isNodeFullySelected =
     prevSel.start <= nodeStart && prevSel.end >= nodeEnd;
 
-  // If the node was not fully selected, do appropriate selection on the node.
-  if (!isNodeFullySelected) {
-    switch (node.kind) {
-      case ts.SyntaxKind.StringLiteral:
-        return calcStringSelection(node, prevSel);
-
-      case ts.SyntaxKind.FirstTemplateToken:
-        return calcTemplateStringSelection(node, prevSel);
-    }
-
-    // Default is selecting the whole node content
-    return {
-      start: nodeStart,
-      end: nodeEnd,
-    };
+  // If the node was fully selected, do selection on its parent, otherwise do selection
+  // on the node it self.
+  if (isNodeFullySelected) {
+    return calcNodeSelection(node.parent, prevSel);
   }
 
-  const parent = node.parent;
-
-  switch (parent.kind) {
-    case ts.SyntaxKind.ArrayLiteralExpression:
-    case ts.SyntaxKind.ArrayBindingPattern:
-    case ts.SyntaxKind.ObjectLiteralExpression:
-      return calcListSelection(parent, prevSel);
-  }
-
-  return {
-    start: parent.getStart(),
-    end: parent.end,
-  };
+  return calcNodeSelection(node, prevSel);
 };
 
 export default calcSelection;
