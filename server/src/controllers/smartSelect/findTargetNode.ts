@@ -6,35 +6,47 @@ const findTargetNode = (
   position: number,
   sel: ISelection,
 ) => {
-  const isValidSelection = sel.start >= 0 && sel.end >= 0;
+  const startTime = Date.now();
 
-  let targetNode: ts.Node | undefined;
-  let nodeAtPosition: ts.Node | undefined;
+  const selStart = sel.start;
+  const selEnd = sel.end;
 
-  const visitor = (node: ts.Node) => {
-    const nodeStart = node.getStart(sourceFile);
+  const isValidSelection = selStart >= 0 && selEnd >= 0;
+
+  let selectionHolder: ts.Node | undefined;
+  let positionHolder: ts.Node | undefined;
+
+  const selectionHolderFinder = (node: ts.Node) => {
+    const nodeStart = node.getStart();
     const nodeEnd = node.end;
 
-    if (isValidSelection && nodeStart === sel.start && nodeEnd === sel.end) {
-      targetNode = node;
+    if (selStart === nodeStart && selEnd === nodeEnd) {
+      selectionHolder = node;
       return;
     }
 
-    if (isValidSelection && nodeStart <= sel.start && nodeEnd >= sel.end) {
-      targetNode = node;
-      ts.forEachChild(node, visitor);
-    }
-
-    if (position >= nodeStart && position < node.end) {
-      nodeAtPosition = node;
-      ts.forEachChild(node, visitor);
+    if (selStart >= nodeStart && selEnd <= nodeEnd) {
+      selectionHolder = node;
+      ts.forEachChild(node, selectionHolderFinder);
     }
   };
+  if (isValidSelection) selectionHolderFinder(sourceFile);
 
-  visitor(sourceFile);
+  const positionHolderFinder = (node: ts.Node) => {
+    const nodeStart = node.getStart();
+    const nodeEnd = node.end;
 
-  // Prioritize target node
-  return targetNode || nodeAtPosition;
+    if (position >= nodeStart && position < nodeEnd) {
+      positionHolder = node;
+      ts.forEachChild(node, positionHolderFinder);
+    }
+  };
+  if (!selectionHolder) positionHolderFinder(sourceFile);
+
+  console.log('Target node found in', Date.now() - startTime, 'ms');
+
+  // Prioritize the node that is holding the selection
+  return selectionHolder || positionHolder;
 };
 
 export default findTargetNode;
