@@ -1,3 +1,5 @@
 [
-  // { "keys": [ "ctrl+shift+f" ],  "command": "speedy_dev_hook_format" }
+  // { "keys": ["ctrl+shift+f"], "command": "speedy_dev_hook_format" },
+  // { "keys": ["ctrl+shift+l"], "command": "speedy_dev_hook_list_scripts" },
+  // { "keys": ["ctrl+shift+d"], "command": "speedy_dev_hook_smart_select" },
 ]

@@ -1,6 +1,19 @@
 [
   {
-    "command": "speedy_dev_hook_format",
-    "caption": "Format With SpeedyDevHook",
+    "caption": "Speedy-Dev-Hook",
+    "children": [
+      {
+        "command": "speedy_dev_hook_format",
+        "caption": "Format Code",
+      },
+      {
+        "command": "speedy_dev_hook_smart_select",
+        "caption": "Smart Select",
+      },
+      {
+        "command": "speedy_dev_hook_list_scripts",
+        "caption": "List NPM Scripts",
+      },
+    ],
   },
 ]
