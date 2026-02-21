@@ -63,49 +63,77 @@ SpeedyDevHook is engineered with a focus on non-blocking I/O and deep code under
 
 ### Installation
 
-1.  **Clone the repository** into your Sublime Text `Packages` directory:
+1.  **Clone the repository** into your Sublime Text `Packages` directory.
+
 2.  **Install Server Dependencies:**
-    Navigate to the `server` directory and install the necessary packages:
+    Open your terminal, navigate into the `server` directory located inside the cloned repository, and install the necessary packages:
+
     ```bash
     npm install
     ```
+
 3.  **Build the Server:**
-    Compile the TypeScript source into the optimized bundle:
+    While still in the `server` directory, compile the TypeScript source into the optimized bundle:
     ```bash
     npm run build
     ```
+4.  **Restart Sublime Text:**
+    After the build process is complete, restart Sublime Text. The plugin will now work automatically, managing the background server lifecycle without further manual intervention.
 
 ### Running in Development
 
-If you are modifying the server code:
+If you are modifying the server code, follow these steps to enable development mode:
 
-1.  Set `IS_PRODUCTION = False` in `plugin.py`.
-2.  Run the server in watch mode:
+1.  Set `IS_PRODUCTION = False` in `plugin.py`. **Note:** When this is set to `False`, the Python plugin will **not** start the Node.js server automatically.
+
+2.  **Close Sublime Text** and wait for approximately one minute. This ensures that any existing background processes are fully terminated and the environment is clean.
+
+3.  **Reopen Sublime Text** to begin development.
+
+4.  **Start the Server Manually:** Navigate to the `server` directory in your terminal and run the server in watch mode:
     ```bash
     npm run dev
     ```
-3.  Reload Sublime Text to initialize the Python plugin.
+
+- The plugin will now communicate with your manually started server on the default development port.
 
 ## 6. Configuration
 
 ### 6.1 Server Configuration
 
-The server behavior is governed by `config.json` and `index.ts` constants:
+The server's behavior is defined by `server/config.json` and constants within `server/src/config/index.ts`:
 
-- **`MAX_INACTIVE_TIME`**: Default `45000ms`. Controls how long the server stays idle before self-terminating.
-- **`supportedExtensions`**: A comprehensive list in `config.json` defining which files Prettier should attempt to format.
+- **`MAX_INACTIVE_TIME`**: Default `45000` (45 seconds). The server will automatically shut down if no requests or heartbeats are received within this window.
 
-### 6.2 Sublime Text Keymaps
+- **`MAX_TXT_SIZE`**: Default `1MB`. The maximum file size the server will process to ensure performance stability.
 
-You can bind the commands to your preferred shortcuts in your `.sublime-keymap` file:
+- **`supportedExtensions`**: Located in `server/config.json`. This list determines which file types the Prettier engine will attempt to format.
+
+### 6.2 Plugin Environment
+
+In `plugin.py`, you can toggle the execution mode:
+
+- **`IS_PRODUCTION`**:
+
+  - When `True` (default), the plugin uses `find_free_port()` to dynamically allocate an available TCP port and passes it to the Node.js server.
+  - When `False`, it defaults to port `3000` for easier debugging.
+
+### 6.3 Keybindings
+
+To enable keyboard shortcuts, add the following to your `Default.sublime-keymap` file (Preferences > Key Bindings). The commands mapped below correspond to the internal Python class names:
 
 ```json
 [
   { "keys": ["ctrl+shift+f"], "command": "speedy_dev_hook_format" },
-  { "keys": ["ctrl+shift+a"], "command": "speedy_dev_hook_smart_select" }
+  { "keys": ["ctrl+shift+l"], "command": "speedy_dev_hook_list_scripts" },
+  { "keys": ["ctrl+shift+d"], "command": "speedy_dev_hook_smart_select" }
 ]
 ```
 
-### 6.3 Context Menu
+### 6.4 Context Menu
 
-The plugin automatically adds a "Format With SpeedyDevHook" option to the right-click context menu for all supported file types.
+The plugin integrates into the Sublime Text context menu. Right-clicking in any view will reveal the **Speedy-Dev-Hook** menu, providing quick access to:
+
+- **Format Code**: Formats the current file.
+- **Smart Select**: Expands selection based on AST.
+- **List NPM Scripts**: Opens a quick panel to run scripts from the project root.
